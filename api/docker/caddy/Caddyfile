@@ -12,18 +12,6 @@
 
 log
 
-# Matches requests for HTML documents, for static files and for Next.js files,
-# except for known API paths and paths with extensions handled by API Platform
-@pwa expression `(
-        {header.Accept}.matches("\\btext/html\\b")
-        && !{path}.matches("(?i)(?:^/docs|^/graphql|^/bundles/|^/media/|^/_profiler|^/_wdt|\\.(?:json|html$|csv$|ya?ml$|xml$))")
-    )
-    || {path} == "/favicon.ico"
-    || {path} == "/manifest.json"
-    || {path} == "/robots.txt"
-    || {path}.startsWith("/_next")
-    || {path}.startsWith("/sitemap")`
-
 @media expression `{path}.startsWith("/media")`
 
 route {
@@ -55,10 +43,6 @@ route {
       ?Access-Control-Allow-methods "GET, OPTIONS"
       ?Access-Control-Allow-Headers "Authorization, Content-Type"
     }
-
-    # Comment the following line if you don't want Next.js to catch requests for HTML documents.
-    # In this case, they will be handled by the PHP app.
-    reverse_proxy @pwa http://{$PWA_UPSTREAM}
 
     php_fastcgi unix//var/run/php/php-fpm.sock
     encode zstd gzip
