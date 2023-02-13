@@ -1,0 +1,40 @@
+name: Deploy to Netlify
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'client/**'
+
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'The branch to deploy from.'
+        required: true
+        default: 'main'
+
+defaults:
+  run:
+    working-directory: client
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Netlify CLI
+        run: npm install netlify-cli -g
+
+      - name: Deploy
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: netlify deploy --dir=dist --prod
